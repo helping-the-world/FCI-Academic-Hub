@@ -49,6 +49,8 @@ SUPPORTED_EXTENSIONS = {
     '.doc': 'Word Document (Legacy)',
     '.xls': 'Excel Spreadsheet (Legacy)',
     '.ppt': 'PowerPoint (Legacy)',
+    '.md': 'Markdown File',
+    '.txt': 'Text File',
 }
 
 
@@ -272,6 +274,11 @@ def clean_file(filepath, verbose=False):
         print(f"⚠️  Legacy Office format not supported: {filepath}")
         print(f"      💡 Convert to {ext}x format first (e.g., .doc → .docx)")
         return False
+    
+    # Handle Markdown and Text files (no metadata to clean, just acknowledge)
+    if ext in ['.md', '.txt']:
+        print(f"✅ Checked: {filepath} (text file - no binary metadata)")
+        return True
     
     # Try exiftool first for PDFs and images
     try:

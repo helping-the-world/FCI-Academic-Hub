@@ -25,6 +25,11 @@ Welcome to the **FCI Academic Hub**! This guide explains how to contribute mater
     - [3. Clean File Metadata](#3-clean-file-metadata)
     - [4. Anonymous Commit](#4-anonymous-commit)
     - [5. Push with Anonymous Account](#5-push-with-anonymous-account)
+    - [6. Switch GitHub Account for This Repo Only](#6-switch-github-account-for-this-repo-only)
+      - [Option A: Use HTTPS with Token (Recommended)](#option-a-use-https-with-token-recommended)
+      - [Option B: Use Separate SSH Key](#option-b-use-separate-ssh-key)
+      - [Option C: Temporarily Override SSH Key](#option-c-temporarily-override-ssh-key)
+      - [Verify Current Account](#verify-current-account)
     - [Quick Workflow](#quick-workflow)
     - [Privacy Checklist](#privacy-checklist)
 
@@ -217,6 +222,93 @@ git push https://YOUR_ANON_USERNAME@github.com/YOUR_ANON_USERNAME/FCI-Academic-H
 ```
 
 > 💡 Use a [Personal Access Token](https://github.com/settings/tokens) instead of password.
+
+### 6. Switch GitHub Account for This Repo Only
+
+If you get permission errors like:
+```
+ERROR: Permission to org/repo.git denied to YourMainAccount.
+fatal: Could not read from remote repository.
+```
+
+This means Git is using your main account's credentials. Here's how to fix it:
+
+#### Option A: Use HTTPS with Token (Recommended)
+
+1. Generate a [Personal Access Token](https://github.com/settings/tokens) from your anonymous account
+2. Configure the remote with your anonymous username:
+
+```bash
+# Remove existing origin if needed
+git remote remove origin
+
+# Add origin with your anonymous username embedded
+git remote add origin https://YOUR_ANON_USERNAME@github.com/ORG/FCI-Academic-Hub.git
+
+# Push (will prompt for password - use your token)
+git push -u origin main
+```
+
+3. To save credentials for this repo only:
+
+```bash
+# Store credentials for this repo only
+git config credential.helper store
+
+# Next push will save the token
+git push origin main
+# Enter your anonymous username and token when prompted
+```
+
+#### Option B: Use Separate SSH Key
+
+1. Generate a new SSH key for anonymous account:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/id_anon -C "anon@users.noreply.github.com"
+```
+
+2. Add the public key to your anonymous GitHub account (Settings → SSH Keys)
+
+3. Create/edit `~/.ssh/config`:
+
+```
+# Anonymous GitHub account
+Host github-anon
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_anon
+    IdentitiesOnly yes
+```
+
+4. Use the custom host in your remote:
+
+```bash
+git remote remove origin
+git remote add origin git@github-anon:ORG/FCI-Academic-Hub.git
+git push -u origin main
+```
+
+#### Option C: Temporarily Override SSH Key
+
+```bash
+# Push using specific SSH key (one-time)
+GIT_SSH_COMMAND="ssh -i ~/.ssh/id_anon" git push origin main
+```
+
+#### Verify Current Account
+
+```bash
+# Check which account SSH is using
+ssh -T git@github.com
+
+# Check remote URL
+git remote -v
+
+# Check local git config
+git config user.name
+git config user.email
+```
 
 ### Quick Workflow
 
