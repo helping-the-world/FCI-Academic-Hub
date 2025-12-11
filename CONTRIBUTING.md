@@ -236,7 +236,20 @@ This means Git is using your main account's credentials. Here's how to fix it:
 #### Option A: Use HTTPS with Token (Recommended)
 
 1. Generate a [Personal Access Token](https://github.com/settings/tokens) from your anonymous account
-2. Configure the remote with your anonymous username:
+2. **Clear cached credentials first** (important!):
+
+```bash
+# Clear stored credentials for github.com
+git credential reject <<EOF
+protocol=https
+host=github.com
+EOF
+
+# Or remove from credential store file
+sed -i '/github.com/d' ~/.git-credentials 2>/dev/null
+```
+
+3. Configure the remote with your anonymous username:
 
 ```bash
 # Remove existing origin if needed
@@ -249,16 +262,39 @@ git remote add origin https://YOUR_ANON_USERNAME@github.com/ORG/FCI-Academic-Hub
 git push -u origin main
 ```
 
-3. To save credentials for this repo only:
+4. To save credentials for **this repo only** (not global):
 
 ```bash
-# Store credentials for this repo only
-git config credential.helper store
+# Create a local credential store for this repo only
+git config --local credential.helper 'store --file=.git/.git-credentials'
 
-# Next push will save the token
+# Set credentials to use only for this repo's URL
+git config --local credential.https://github.com.username YOUR_ANON_USERNAME
+
+# Next push will save the token locally in .git/.git-credentials
 git push origin main
-# Enter your anonymous username and token when prompted
+# Enter your token when prompted
 ```
+
+> 💡 This stores credentials inside `.git/` folder, so they only apply to this repo and won't affect your other projects.
+
+> ⚠️ **Still getting permission denied?** Your system may cache credentials. Try:
+> ```bash
+> # Check credential helpers
+> git config --list | grep credential
+> 
+> # If using credential-cache, clear it
+> git credential-cache exit
+> 
+> # If using GNOME Keyring or libsecret (Linux)
+> secret-tool clear server github.com
+> 
+> # If using macOS Keychain
+> git credential-osxkeychain erase <<EOF
+> host=github.com
+> protocol=https
+> EOF
+> ```
 
 #### Option B: Use Separate SSH Key
 

@@ -2,11 +2,11 @@
 site_name: FCI Academic Hub
 site_description: Faculty of Computer Informatics - Academic Resources & Materials
 site_author: FCI Community
-site_url: https://YOUR_USERNAME.github.io/FCI/
+site_url: https://helping-the-world.github.io/FCI/
 
 # Repository
-repo_name: YOUR_USERNAME/FCI
-repo_url: https://github.com/YOUR_USERNAME/FCI
+repo_name: helping-the-world/FCI-Academic-Hub
+repo_url: https://github.com/helping-the-world/FCI-Academic-Hub
 
 # Configuration
 docs_dir: docs
@@ -102,6 +102,6 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/YOUR_USERNAME
+      link: https://github.com/helping-the-world
   generator: false
 

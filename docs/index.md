@@ -98,8 +98,8 @@ This website contains organized materials, courses, and resources for all FCI pr
 !!! tip "Help Us Grow"
     Found missing materials? Want to contribute? 
     
-    - Check our [Contributing Guide](https://github.com/YOUR_USERNAME/FCI/blob/main/CONTRIBUTING.md)
-    - We support [anonymous contributions](https://github.com/YOUR_USERNAME/FCI/blob/main/CONTRIBUTING.md#-anonymous-contribution)!
+    - Check our [Contributing Guide](https://github.com/helping-the-world/FCI-Academic-Hub/blob/main/CONTRIBUTING.md)
+    - We support [anonymous contributions](https://github.com/helping-the-world/FCI-Academic-Hub/blob/main/CONTRIBUTING.md#-anonymous-contribution)!
 
 ---
 

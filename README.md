@@ -4,7 +4,7 @@ A comprehensive academic resources hub for the Faculty of Computer Informatics (
 
 ## 🌐 Live Website
 
-Visit: **https://YOUR_USERNAME.github.io/FCI/**
+Visit: **[Click Me](https://helping-the-world.github.io/FCI-Academic-Hub/)**
 
 ## 📚 Features
 
