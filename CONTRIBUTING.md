@@ -24,6 +24,7 @@ Welcome to the **FCI Academic Hub**! This guide explains how to contribute mater
     - [2. Configure Git (Local Only)](#2-configure-git-local-only)
     - [3. Clean File Metadata](#3-clean-file-metadata)
     - [4. Anonymous Commit](#4-anonymous-commit)
+    - [5. Push with Anonymous Account](#5-push-with-anonymous-account)
     - [Quick Workflow](#quick-workflow)
     - [Privacy Checklist](#privacy-checklist)
 
@@ -161,13 +162,19 @@ Create using [ProtonMail](https://protonmail.com) or [Tutanota](https://tutanota
 
 ### 2. Configure Git (Local Only)
 
+> ⚠️ This only affects THIS repo, not your global config.
+
 ```bash
 cd /path/to/FCI
 git config user.name "Anonymous"
 git config user.email "anon@users.noreply.github.com"
 ```
 
-> This only affects THIS repo, not your global config.
+To verify it's local only:
+```bash
+git config user.name              # Shows "Anonymous" (local)
+git config --global user.name     # Shows your real name (unchanged)
+```
 
 ### 3. Clean File Metadata
 
@@ -177,11 +184,8 @@ Use the provided script:
 # Single file
 python3 scripts/clean_metadata.py document.pdf
 
-# All PDFs in docs/
-python3 scripts/clean_metadata.py docs/**/*.pdf
-
-# Recursive
-python3 scripts/clean_metadata.py --recursive docs/
+# Directory (recursive)
+python3 scripts/clean_metadata.py docs/materials/courses/calculus/
 ```
 
 The script handles PDFs, images, and Office documents. See `scripts/clean_metadata.py --help`.
@@ -194,6 +198,26 @@ Use the provided script for randomized UTC timestamps:
 ./scripts/anon-commit.sh "add: new materials"
 ```
 
+### 5. Push with Anonymous Account
+
+Add your anonymous GitHub account as a remote:
+
+```bash
+# Add anonymous remote (one-time setup)
+git remote add anon https://github.com/YOUR_ANON_USERNAME/FCI-Academic-Hub.git
+
+# Push to anonymous account
+git push anon main
+```
+
+Or push with credentials inline:
+
+```bash
+git push https://YOUR_ANON_USERNAME@github.com/YOUR_ANON_USERNAME/FCI-Academic-Hub.git main
+```
+
+> 💡 Use a [Personal Access Token](https://github.com/settings/tokens) instead of password.
+
 ### Quick Workflow
 
 ```bash
@@ -202,19 +226,20 @@ git config user.name "Anonymous"
 git config user.email "anon@users.noreply.github.com"
 
 cp ~/my-notes.pdf docs/materials/courses/calculus/notes/
-python3 scripts/clean_metadata.py docs/materials/courses/calculus/notes/my-notes.pdf
+python3 scripts/clean_metadata.py docs/materials/courses/calculus/notes/
 
 git add .
 ./scripts/anon-commit.sh "add: calculus notes"
-git push origin main
+git push anon main
 ```
 
 ### Privacy Checklist
 
 - [ ] Anonymous GitHub account
-- [ ] Local git config set
+- [ ] Local git config set (not global)
 - [ ] Metadata cleaned (`python3 scripts/clean_metadata.py`)
 - [ ] No personal info in files/commits
+- [ ] Push to anonymous remote
 
 ---
 

@@ -9,14 +9,18 @@ This script removes identifying metadata from:
 
 Usage:
     python3 clean_metadata.py <file1> [file2] ...
+    python3 clean_metadata.py <directory>
     python3 clean_metadata.py *.pdf
     python3 clean_metadata.py --all docs/materials/courses/
+    python3 clean_metadata.py --changed    # Clean files changed since last commit
+    python3 clean_metadata.py --staged     # Clean only staged files
 
 Requirements:
     - exiftool: sudo apt install libimage-exiftool-perl
                brew install exiftool (macOS)
     - ghostscript (optional, for corrupted PDFs): sudo apt install ghostscript
     - zip (for Office documents): usually pre-installed
+    - git (for --changed/--staged options)
 """
 
 import subprocess
@@ -308,7 +312,7 @@ def clean_file(filepath, verbose=False):
 
 
 def find_files(directory, recursive=True):
-    """Find all supported files in a directory."""
+    """Find all supported files in a directory, respecting .gitignore."""
     path = Path(directory)
     files = []
     
@@ -319,7 +323,112 @@ def find_files(directory, recursive=True):
         for ext in SUPPORTED_EXTENSIONS:
             files.extend(path.glob(f"*{ext}"))
     
+    # Filter out files ignored by git
+    files = filter_gitignored(files)
+    
     return sorted(files)
+
+
+def filter_gitignored(files):
+    """Filter out files that are ignored by .gitignore."""
+    if not files:
+        return files
+    
+    try:
+        # Check if we're in a git repository
+        result = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode != 0:
+            # Not a git repo, return all files
+            return list(files)
+        
+        # Use git check-ignore to filter out ignored files
+        file_paths = [str(f) for f in files]
+        
+        # git check-ignore returns ignored files (exit 0 if any ignored, 1 if none)
+        result = subprocess.run(
+            ['git', 'check-ignore', '--stdin'],
+            input='\n'.join(file_paths),
+            capture_output=True,
+            text=True
+        )
+        
+        ignored_files = set(result.stdout.strip().split('\n')) if result.stdout.strip() else set()
+        
+        # Return files that are NOT ignored
+        return [f for f in files if str(f) not in ignored_files]
+        
+    except Exception:
+        # If git check fails, return all files
+        return list(files)
+
+
+def get_changed_files(staged_only=False):
+    """Get files changed since last commit using git."""
+    try:
+        # Get the git repository root
+        result = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode != 0:
+            print("❌ Not a git repository!")
+            return []
+        
+        repo_root = Path(result.stdout.strip())
+        
+        # Get changed files
+        if staged_only:
+            # Only staged files
+            result = subprocess.run(
+                ['git', 'diff', '--cached', '--name-only', '--diff-filter=ACMR'],
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                print(f"❌ Git error: {result.stderr}")
+                return []
+            
+            files = []
+            for line in result.stdout.strip().split('\n'):
+                if line:
+                    filepath = repo_root / line
+                    ext = filepath.suffix.lower()
+                    if ext in SUPPORTED_EXTENSIONS and filepath.exists():
+                        files.append(filepath)
+            return sorted(files)
+        else:
+            # All changed files (staged + unstaged + untracked)
+            # Get staged and unstaged changes
+            result_diff = subprocess.run(
+                ['git', 'diff', '--name-only', '--diff-filter=ACMR', 'HEAD'],
+                capture_output=True,
+                text=True
+            )
+            # Get untracked files
+            result_untracked = subprocess.run(
+                ['git', 'ls-files', '--others', '--exclude-standard'],
+                capture_output=True,
+                text=True
+            )
+            
+            files_str = result_diff.stdout + result_untracked.stdout
+            files = []
+            for line in files_str.strip().split('\n'):
+                if line:
+                    filepath = repo_root / line
+                    ext = filepath.suffix.lower()
+                    if ext in SUPPORTED_EXTENSIONS and filepath.exists():
+                        files.append(filepath)
+            return sorted(set(files))
+        
+    except Exception as e:
+        print(f"❌ Error getting changed files: {e}")
+        return []
 
 
 def main():
@@ -329,8 +438,12 @@ def main():
         epilog="""
 Examples:
     python3 clean_metadata.py document.pdf
+    python3 clean_metadata.py docs/materials/courses/calculus/
     python3 clean_metadata.py *.pdf
     python3 clean_metadata.py --all docs/materials/courses/
+    python3 clean_metadata.py --changed              # All changed files
+    python3 clean_metadata.py --staged               # Only staged files
+    python3 clean_metadata.py --changed --dry-run    # Preview changed files
     python3 clean_metadata.py --info document.pdf
     
 Supported Formats:
@@ -342,6 +455,10 @@ Supported Formats:
     parser.add_argument('files', nargs='*', help='Files to clean')
     parser.add_argument('--all', '-a', metavar='DIR', 
                         help='Clean all supported files in directory')
+    parser.add_argument('--changed', '-c', action='store_true',
+                        help='Clean only files changed since last commit (staged + unstaged + untracked)')
+    parser.add_argument('--staged', '-s', action='store_true',
+                        help='Clean only staged files (git add)')
     parser.add_argument('--info', '-i', metavar='FILE',
                         help='Show metadata of a file (without cleaning)')
     parser.add_argument('--verbose', '-v', action='store_true',
@@ -370,12 +487,29 @@ Supported Formats:
     # Collect files to process
     files_to_clean = []
     
-    if args.all:
+    if args.changed:
+        print("\n🔍 Finding changed files (staged + unstaged + untracked)...")
+        files_to_clean = get_changed_files(staged_only=False)
+        print(f"   Found {len(files_to_clean)} changed files")
+    elif args.staged:
+        print("\n🔍 Finding staged files...")
+        files_to_clean = get_changed_files(staged_only=True)
+        print(f"   Found {len(files_to_clean)} staged files")
+    elif args.all:
         print(f"\n🔍 Scanning directory: {args.all}")
         files_to_clean = find_files(args.all)
         print(f"   Found {len(files_to_clean)} files")
     elif args.files:
-        files_to_clean = [Path(f) for f in args.files if Path(f).exists()]
+        # Check if a directory was passed directly
+        for f in args.files:
+            path = Path(f)
+            if path.is_dir():
+                print(f"\n🔍 Scanning directory: {f}")
+                files_to_clean.extend(find_files(path))
+            elif path.exists():
+                files_to_clean.append(path)
+        if files_to_clean:
+            print(f"   Found {len(files_to_clean)} files")
     else:
         parser.print_help()
         sys.exit(1)
