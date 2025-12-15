@@ -1,0 +1,107 @@
+# Project information
+site_name: FCI Academic Hub
+site_description: Faculty of Computer Informatics - Academic Resources & Materials
+site_author: FCI Community
+site_url: https://YOUR_USERNAME.github.io/FCI/
+
+# Repository
+repo_name: YOUR_USERNAME/FCI
+repo_url: https://github.com/YOUR_USERNAME/FCI
+
+# Configuration
+docs_dir: docs
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+
+# Plugins
+plugins:
+  - search:
+      lang: en
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - tables
+
+# Page tree / Navigation
+nav:
+  - 🏠 Home: index.md
+  
+  - 🎓 Programs:
+    - programs/ai/index.md
+    - programs/cyber-security/index.md
+    - programs/software-engineering/index.md
+    - programs/general-hours/index.md
+  
+  - 📚 Courses: materials/courses/index.md
+  
+  - 📖 Materials:
+    - Curriculum:
+      - AI: materials/curriculum/ai/curriculum.pdf
+      - Cyber Security: materials/curriculum/cyber-security/curriculum.pdf
+      - General Hours: materials/curriculum/general-hours/curriculum_2024-2025.pdf
+      - Software Engineering: materials/curriculum/software-engineering/Curriculum_2025-2026.pdf
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/YOUR_USERNAME
+  generator: false
+
