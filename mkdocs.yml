@@ -91,8 +91,7 @@ nav:
   
   - 📚 Courses: materials/courses/index.md
   
-  - 📖 Materials:
-    - Curriculum:
+  - 📖 Curriculum:
       - AI: materials/curriculum/ai/curriculum.pdf
       - Cyber Security: materials/curriculum/cyber-security/curriculum.pdf
       - General Hours: materials/curriculum/general-hours/curriculum_2024-2025.pdf
